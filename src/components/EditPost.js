@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 import { Storage, API } from "aws-amplify";
 import { updatePost } from "../graphql/mutations";
 import { getPost } from "../graphql/queries";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { lightGrey, darkGrey, action } from "../styles/colors";
 
 import styled from "styled-components";
@@ -125,8 +125,12 @@ const Button = styled.p`
 
 function EditPost({ setPosts, posts, postId }) {
   /* 1. Create local state with useState hook */
-  const { control, handleSubmit, errors } = useForm();
-  const [post, setPost] = useState<any>("");
+  const [post, setPost] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const [saving, setSaving] = useState(false);
   const [mediaName, setMediaName] = useState("");
   const [mediaInfo, setMediaInfo] = useState("");
@@ -231,6 +235,8 @@ function EditPost({ setPosts, posts, postId }) {
     }
   }
 
+  if (!post) return <p>Loading</p>;
+
   return (
     <Section backgroundColor={darkGrey} color={lightGrey} key={post.id}>
       <Link to="/posts">
@@ -242,42 +248,29 @@ function EditPost({ setPosts, posts, postId }) {
         <TextContainer>
           <div>
             <p>Title</p>
-            <Controller
-              control={control}
-              render={({ onChange, onBlur, value }) => (
-                <InputTile
-                  rows={1}
-                  onBlur={onBlur}
-                  onChange={(value) => onChange(value)}
-                  value={value}
-                  placeholder="Title"
-                />
-              )}
-              name="title"
-              rules={{ required: true }}
-              defaultValue={post.title}
-            />
 
-            {errors.code && <p className="error-message">Title is required</p>}
+            <InputTextArea
+              type="text"
+              placeholder="Title"
+              defaultValue={post.title}
+              {...register("title", { required: true })}
+            />
+            {console.log(post.title)}
+
+            {errors.title && <p className="error-message">Title is required</p>}
           </div>
 
           <div>
             <p>Post</p>
-            <Controller
-              control={control}
-              render={({ onChange, onBlur, value }) => (
-                <InputTextArea
-                  rows={12}
-                  onBlur={onBlur}
-                  onChange={(value) => onChange(value)}
-                  value={value}
-                  placeholder="Paragraph"
-                />
-              )}
-              name="text"
-              rules={{ required: true }}
+
+            <InputTextArea
+              rows={6}
+              type="text"
+              placeholder="Post"
               defaultValue={post.text}
+              {...register("text", { required: true })}
             />
+
             {errors.code && (
               <p className="error-message">Paragraph is required</p>
             )}

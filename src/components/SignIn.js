@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Auth } from "aws-amplify";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import styled from "styled-components";
 
 const FormContainer = styled.div`
@@ -26,29 +26,19 @@ const Button = styled.button`
   width: 240px;
 `;
 
-interface FormValues {
-  username: string;
-  password: string;
-}
-
-interface Username {
-  username: string;
-}
-
-interface NewPass {
-  username: string;
-  code: string;
-  new_password: string;
-}
-
 const SignIn = () => {
-  const { control, handleSubmit, errors, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
   const [userNotConfirmed, setUserNotConfirmed] = useState("");
   const [errMessage, setErrMessage] = useState("");
   const [passForgot, setPassForgot] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
 
-  async function signIn(data: FormValues) {
+  async function signIn(data) {
     const { username, password } = data;
     try {
       await Auth.signIn({
@@ -75,7 +65,7 @@ const SignIn = () => {
     }
   }
 
-  async function confirmUser(data: FormValues) {
+  async function confirmUser(data) {
     const { password } = data;
     try {
       await Auth.confirmSignUp(userNotConfirmed, password);
@@ -88,7 +78,7 @@ const SignIn = () => {
     }
   }
 
-  async function forgotPass(data: Username) {
+  async function forgotPass(data) {
     const { username } = data;
     try {
       await Auth.forgotPassword(username);
@@ -99,7 +89,7 @@ const SignIn = () => {
     }
   }
 
-  async function newPass(data: NewPass) {
+  async function newPass(data) {
     const { username, code, new_password } = data;
     try {
       await Auth.forgotPasswordSubmit(username, code, new_password);
@@ -114,52 +104,25 @@ const SignIn = () => {
   if (showNewPass === true) {
     return (
       <FormContainer>
-        <Controller
-          control={control}
-          render={({ onChange, onBlur, value }) => (
-            <input
-              onBlur={onBlur}
-              onChange={(value) => onChange(value)}
-              value={value}
-              placeholder="Username"
-            />
-          )}
-          name="username"
-          rules={{ required: true }}
-          defaultValue=""
+        <input
+          type="text"
+          placeholder="Username"
+          {...register("username", { required: true })}
         />
+
         {errors.code && <p className="error-message">Username is required</p>}
 
-        <Controller
-          control={control}
-          render={({ onChange, onBlur, value }) => (
-            <input
-              onBlur={onBlur}
-              onChange={(value) => onChange(value)}
-              value={value}
-              placeholder="Code"
-            />
-          )}
-          name="code"
-          rules={{ required: true }}
-          defaultValue=""
+        <input
+          type="text"
+          placeholder="Code"
+          {...register("code", { required: true })}
         />
         {errors.code && <p className="error-message">Code is required</p>}
 
-        <Controller
-          control={control}
-          render={({ onChange, onBlur, value }) => (
-            <input
-              type="Password"
-              onBlur={onBlur}
-              onChange={(value) => onChange(value)}
-              value={value}
-              placeholder="New Password"
-            />
-          )}
-          name="new_password"
-          rules={{ required: true }}
-          defaultValue=""
+        <input
+          type="Passwrod"
+          placeholder="Password"
+          {...register("password", { required: true })}
         />
         {errors.code && (
           <p className="error-message">New Password is required</p>
@@ -175,19 +138,10 @@ const SignIn = () => {
   if (passForgot === true) {
     return (
       <FormContainer>
-        <Controller
-          control={control}
-          render={({ onChange, onBlur, value }) => (
-            <input
-              onBlur={onBlur}
-              onChange={(value) => onChange(value)}
-              value={value}
-              placeholder="Username"
-            />
-          )}
-          name="username"
-          rules={{ required: true }}
-          defaultValue=""
+        <input
+          type="text"
+          placeholder="Username"
+          {...register("username", { required: true })}
         />
         {errors.code && <p className="error-message">Email is required</p>}
 
@@ -206,19 +160,10 @@ const SignIn = () => {
           {userNotConfirmed}, we sent a verification code to your email. Please,
           enter the code below.
         </p>
-        <Controller
-          control={control}
-          render={({ onChange, onBlur, value }) => (
-            <input
-              onBlur={onBlur}
-              onChange={(value) => onChange(value)}
-              value={value}
-              placeholder="Verification code"
-            />
-          )}
-          name="password"
-          rules={{ required: true }}
-          defaultValue=""
+        <input
+          type="Password"
+          placeholder="Password"
+          {...register("password", { required: true })}
         />
 
         <Button onClick={handleSubmit(confirmUser)}>
@@ -230,37 +175,19 @@ const SignIn = () => {
 
   return (
     <FormContainer>
-      <Controller
-        control={control}
-        render={({ onChange, onBlur, value }) => (
-          <input
-            onBlur={onBlur}
-            onChange={(value) => onChange(value)}
-            value={value}
-            placeholder="Username"
-          />
-        )}
-        name="username"
-        rules={{ required: true }}
-        defaultValue=""
+      <input
+        type="text"
+        placeholder="Username"
+        {...register("username", { required: true })}
       />
       {errors.username && <p className="error-message">Username is required</p>}
 
-      <Controller
-        control={control}
-        render={({ onChange, onBlur, value }) => (
-          <input
-            type="Password"
-            onBlur={onBlur}
-            onChange={(value) => onChange(value)}
-            value={value}
-            placeholder="Password"
-          />
-        )}
-        name="password"
-        rules={{ required: true }}
-        defaultValue=""
+      <input
+        type="Password"
+        placeholder="Password"
+        {...register("password", { required: true })}
       />
+
       {errors.password && <p className="error-message">Password is required</p>}
 
       <Button onClick={handleSubmit(signIn)}>

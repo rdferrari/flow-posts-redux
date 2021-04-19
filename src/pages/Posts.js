@@ -5,6 +5,7 @@ import CreatePost from "../components/CreatePost";
 import { darkGrey, action } from "../styles/colors";
 
 import { UserStatusContext } from "../App";
+import { PostsList } from "../features/posts/PostsList";
 
 const CreateButton = styled.p`
   background-color: ${action};
@@ -40,7 +41,8 @@ function Home({ posts, setPosts }) {
               </>
             )
           ) : (
-            <List posts={posts} setPosts={setPosts} user={user} />
+            // <List posts={posts} setPosts={setPosts} user={user} />
+            <PostsList user={user} />
           )}
           {user !== "no user authenticated" && (
             <CreateButton onClick={() => setShowCreatePost(!showCreatePost)}>

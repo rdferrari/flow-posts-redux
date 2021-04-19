@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Auth } from "aws-amplify";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Redirect } from "react-router-dom";
 import styled from "styled-components";
 
@@ -28,19 +28,18 @@ const Button = styled.button`
   width: 240px;
 `;
 
-type FormValues = {
-  username: string;
-  email: string;
-  password: string;
-};
-
 const SignUp = () => {
-  const { control, handleSubmit, errors, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
   const [userUsername, setUserUsername] = useState("");
   const [userConfirmed, setUsertConfirmed] = useState(false);
   const [errMessage, setErrMessage] = useState("");
 
-  async function signUp(data: FormValues) {
+  async function signUp(data) {
     const { username, email, password } = data;
     try {
       await Auth.signUp({
@@ -62,7 +61,7 @@ const SignUp = () => {
     }
   }
 
-  async function confirmUser(data: FormValues) {
+  async function confirmUser(data) {
     const { password } = data;
     try {
       await Auth.confirmSignUp(userUsername, password);
@@ -93,20 +92,10 @@ const SignUp = () => {
           Thank you, {userUsername} for signin up. <br />
           We sent a verification code to your email.
         </p>
-
-        <Controller
-          control={control}
-          render={({ onChange, onBlur, value }) => (
-            <input
-              onBlur={onBlur}
-              onChange={(value) => onChange(value)}
-              value={value}
-              placeholder="Verification code"
-            />
-          )}
-          name="password"
-          rules={{ required: true }}
-          defaultValue=""
+        <input
+          type="text"
+          placeholder="verification code"
+          {...register("password", { required: true })}
         />
         {errors.code && <p className="error-message">Code is required</p>}
 
@@ -122,52 +111,24 @@ const SignUp = () => {
 
   return (
     <RightContainer>
-      <Controller
-        control={control}
-        render={({ onChange, onBlur, value }) => (
-          <input
-            onBlur={onBlur}
-            onChange={(value) => onChange(value)}
-            value={value}
-            placeholder="Username"
-          />
-        )}
-        name="username"
-        rules={{ required: true }}
-        defaultValue=""
+      <input
+        type="text"
+        placeholder="Username"
+        {...register("username", { required: true })}
       />
       {errors.username && <p className="error-message">Username is required</p>}
 
-      <Controller
-        control={control}
-        render={({ onChange, onBlur, value }) => (
-          <input
-            onBlur={onBlur}
-            onChange={(value) => onChange(value)}
-            value={value}
-            placeholder="Email"
-          />
-        )}
-        name="email"
-        rules={{ required: true }}
-        defaultValue=""
+      <input
+        type="text"
+        placeholder="Email"
+        {...register("email", { required: true })}
       />
       {errors.email && <p className="error-message">Email is required</p>}
 
-      <Controller
-        control={control}
-        render={({ onChange, onBlur, value }) => (
-          <input
-            type="Password"
-            onBlur={onBlur}
-            onChange={(value) => onChange(value)}
-            value={value}
-            placeholder="Password"
-          />
-        )}
-        name="password"
-        rules={{ required: true }}
-        defaultValue=""
+      <input
+        type="Password"
+        placeholder="Password"
+        {...register("password", { required: true })}
       />
       {errors.password && <p className="error-message">Password is required</p>}
 

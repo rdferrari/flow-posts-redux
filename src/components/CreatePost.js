@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 import { Storage, API } from "aws-amplify";
 import { createPost } from "../graphql/mutations";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { lightGrey, darkGrey, action } from "../styles/colors";
 
 import styled from "styled-components";
@@ -89,7 +89,12 @@ const Button = styled.p`
 
 export default function CreatePost({ setPosts, posts }) {
   /* 1. Create local state with useState hook */
-  const { control, handleSubmit, errors, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
   const [mediaName, setMediaName] = useState("");
   const [mediaInfo, setMediaInfo] = useState("");
   // const [saving, setSaving] = useState(false);
@@ -150,43 +155,26 @@ export default function CreatePost({ setPosts, posts }) {
         <TextContainer>
           <div>
             <p>Title</p>
-            <Controller
-              control={control}
-              render={({ onChange, onBlur, value }) => (
-                <InputTile
-                  rows={1}
-                  onBlur={onBlur}
-                  onChange={(value) => onChange(value)}
-                  value={value}
-                  placeholder="Title"
-                />
-              )}
-              name="title"
-              rules={{ required: true }}
-              defaultValue=""
+
+            <InputTile
+              type="text"
+              placeholder="Title"
+              {...register("title", { required: true })}
             />
 
-            {errors.code && <p className="error-message">Title is required</p>}
+            {errors.title && <p className="error-message">Title is required</p>}
           </div>
 
           <div>
             <p>Paragraph</p>
-            <Controller
-              control={control}
-              render={({ onChange, onBlur, value }) => (
-                <InputTextArea
-                  rows={12}
-                  onBlur={onBlur}
-                  onChange={(value) => onChange(value)}
-                  value={value}
-                  placeholder="Paragraph"
-                />
-              )}
-              name="text"
-              rules={{ required: true }}
-              defaultValue=""
+            <InputTextArea
+              rows={6}
+              type="text"
+              placeholder="Paragraph"
+              {...register("text", { required: true })}
             />
-            {errors.code && (
+
+            {errors.text && (
               <p className="error-message">Paragraph is required</p>
             )}
           </div>
