@@ -1,0 +1,41 @@
+{
+  "auth": {
+    "flowpostsredux28e385cf": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  },
+  "api": {
+    "flowpostsredux": {
+      "service": "AppSync",
+      "providerPlugin": "awscloudformation",
+      "output": {
+        "authConfig": {
+          "defaultAuthentication": {
+            "authenticationType": "API_KEY",
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 365,
+              "description": "public"
+            }
+          },
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "userPoolConfig": {
+                "userPoolId": "authflowpostsredux28e385cf"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "storage": {
+    "flowpostsredux": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
+  }
+}
