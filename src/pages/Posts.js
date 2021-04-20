@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import List from "../components/List";
-import CreatePost from "../components/CreatePost";
+// import CreatePost from "../components/CreatePost";
+import CreatePost from "../features/posts/CreatePost";
 import { darkGrey, action } from "../styles/colors";
 
 import { UserStatusContext } from "../App";
@@ -37,7 +38,11 @@ function Home({ posts, setPosts }) {
           {showCreatePost ? (
             user !== "no user authenticated" && (
               <>
-                <CreatePost posts={posts} setPosts={setPosts} />
+                {/* <CreatePost posts={posts} setPosts={setPosts} /> */}
+                <CreatePost
+                  setShowCreatePost={setShowCreatePost}
+                  showCreatePost={showCreatePost}
+                />
               </>
             )
           ) : (

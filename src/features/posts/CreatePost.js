@@ -2,9 +2,14 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 import { Storage, API } from "aws-amplify";
-import { createPost } from "../graphql/mutations";
+// import { createPost } from "../graphql/mutations";
 import { useForm } from "react-hook-form";
-import { lightGrey, darkGrey, action } from "../styles/colors";
+import { lightGrey, darkGrey, action } from "../../styles/colors";
+
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
+
+import { addNewPost } from "./postsSlice";
 
 import styled from "styled-components";
 
@@ -87,7 +92,12 @@ const Button = styled.p`
   }
 `;
 
-export default function CreatePost({ setPosts, posts }) {
+export default function CreatePost({
+  setPosts,
+  posts,
+  setShowCreatePost,
+  showCreatePost,
+}) {
   /* 1. Create local state with useState hook */
   const {
     register,
@@ -101,6 +111,40 @@ export default function CreatePost({ setPosts, posts }) {
   const [uploading, setUploading] = useState("");
   // const [prevImage, setPreviewImage] = useState("");
 
+  const [addRequestStatus, setAddRequestStatus] = useState("idle");
+
+  const dispatch = useDispatch();
+
+  // const canSave =
+  //   [title, text, id, media].every(Boolean) && addRequestStatus === "idle";
+
+  const onSavePostClicked = async (data) => {
+    const { title, text } = data;
+    // if (canSave) {
+    try {
+      setAddRequestStatus("pending");
+      await Storage.put(mediaName, mediaInfo, {
+        progressCallback(progress) {
+          console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+          setUploading(`Uploaded: ${progress.loaded}/${progress.total}`);
+        },
+      });
+      const postInfo = { id: uuid(), title, text, media: mediaName };
+
+      const resultAction = await dispatch(addNewPost(postInfo));
+      unwrapResult(resultAction);
+      reset({
+        title: "",
+        text: "",
+      });
+    } catch (err) {
+      console.error("Failed to save the post: ", err);
+    } finally {
+      setAddRequestStatus("idle");
+    }
+    // }
+  };
+
   function onChangeFile(e) {
     e.persist();
     if (!e.target.files[0]) return;
@@ -113,44 +157,14 @@ export default function CreatePost({ setPosts, posts }) {
     setMediaInfo(media.fileInfo);
   }
 
-  async function savePost(data) {
-    const { title, text } = data;
-    try {
-      const postInfo = { id: uuid(), title, text, media: mediaName };
-      await Storage.put(mediaName, mediaInfo, {
-        progressCallback(progress) {
-          console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-          setUploading(`Uploaded: ${progress.loaded}/${progress.total}`);
-        },
-      });
-      const mediaUrl = await Storage.get(mediaName);
-
-      const response = await API.graphql({
-        query: createPost,
-        variables: { input: postInfo },
-        authMode: "AMAZON_COGNITO_USER_POOLS",
-      });
-      console.log(response.data.createPost);
-      // console.log(mediaInfo);
-      // console.log(mediaUrl);
-      setPosts([...posts, { ...postInfo, media: mediaUrl }]);
-      // setPosts([...posts, postInfo]);
-      reset({
-        title: "",
-        text: "",
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   return (
     <Section backgroundColor={darkGrey} color={lightGrey}>
-      <Link to="/posts">
-        <Button>
-          <p>Back to posts list</p>
-        </Button>
-      </Link>
+      <Button>
+        <p onClick={() => setShowCreatePost(!showCreatePost)}>
+          Back to posts list
+        </p>
+      </Button>
+
       <ContentContainer>
         <TextContainer>
           <div>
@@ -187,7 +201,7 @@ export default function CreatePost({ setPosts, posts }) {
           <BoxLineVideo></BoxLineVideo> */}
         </div>
       </ContentContainer>
-      <Button onClick={handleSubmit(savePost)}>
+      <Button onClick={handleSubmit(onSavePostClicked)}>
         <p>Save post</p>
       </Button>
     </Section>
