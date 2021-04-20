@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { lightGrey, darkGrey, action } from "../../styles/colors";
 
 import { useDispatch, useSelector } from "react-redux";
-import { unwrapResult } from "@reduxjs/toolkit";
 
 import { editPost, selectPostById } from "./postsSlice";
 
@@ -126,7 +125,7 @@ const Button = styled.p`
   }
 `;
 
-function EditPost({ setPosts, posts, postId }) {
+function EditPost({ postId }) {
   const {
     register,
     handleSubmit,
@@ -136,7 +135,6 @@ function EditPost({ setPosts, posts, postId }) {
   const [mediaInfo, setMediaInfo] = useState("");
   const [uploading, setUploading] = useState("");
   const [prevImage, setPreviewImage] = useState("");
-  // const [editPost, setEditPost] = useState(false);
   const [addRequestStatus, setAddRequestStatus] = useState("idle");
 
   const post = useSelector((state) => selectPostById(state, postId));
@@ -177,9 +175,6 @@ function EditPost({ setPosts, posts, postId }) {
           media: mediaName,
         };
 
-        // const resultAction = await dispatch(postUpdated(postDataUpdated));
-        // unwrapResult(resultAction);
-
         dispatch(editPost(postDataUpdated));
       }
       const postDataUpdated = {
@@ -187,9 +182,6 @@ function EditPost({ setPosts, posts, postId }) {
         title,
         text,
       };
-
-      // const resultAction = await dispatch(postUpdated(postDataUpdated));
-      // unwrapResult(resultAction);
 
       dispatch(editPost(postDataUpdated));
     } catch (err) {

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { API, Storage } from "aws-amplify";
 import { listPosts } from "../../graphql/queries";
-import { createPost, updatePost } from "../../graphql/mutations";
+import { createPost, updatePost, deletePost } from "../../graphql/mutations";
 
 const initialState = {
   posts: [],
@@ -76,6 +76,30 @@ export const editPost = createAsyncThunk(
   }
 );
 
+export const removePost = createAsyncThunk(
+  "posts/removePost",
+  async (postId) => {
+    try {
+      const postToRemove = {
+        id: postId,
+      };
+      const response = await API.graphql({
+        query: deletePost,
+        variables: { input: postToRemove },
+        authMode: "AMAZON_COGNITO_USER_POOLS",
+      });
+
+      const postToDelete = response.data.deletePost;
+
+      await Storage.remove(postToDelete.media);
+
+      return postToDelete;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -117,10 +141,15 @@ const postsSlice = createSlice({
         existingPost.media = media;
       }
     },
+    [removePost.fulfilled]: (state, action) => {
+      const { id } = action.payload;
+      console.log("hey", id);
+      state.posts = state.posts.filter((post) => post.id !== id);
+    },
   },
 });
 
-export const { postAdded, postUpdated } = postsSlice.actions;
+export const { postAdded, postUpdated, postDeleted } = postsSlice.actions;
 
 export default postsSlice.reducer;
 

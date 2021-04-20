@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { lightGrey, darkGrey } from "../../styles/colors";
-import { removePost } from "./postsSlice";
 
 import { selectAllPosts, fetchPosts } from "./postsSlice";
 
@@ -109,7 +108,7 @@ const Bt = styled.p`
   }
 `;
 
-const PostExcerpt = ({ post, user, removingPost }) => {
+const PostExcerpt = ({ post, user }) => {
   return (
     <Section backgroundColor={darkGrey} color={lightGrey} key={post.id}>
       <ContentContainer>
@@ -122,7 +121,9 @@ const PostExcerpt = ({ post, user, removingPost }) => {
               <Link to={`/post/${post.id}`}>
                 <Bt>| Edit |</Bt>
               </Link>
-              <Bt onClick={() => removingPost(post.id)}>| delete |</Bt>
+              {/* <Bt onClick={() => removePost(post.id, post.media)}>
+                | delete |
+              </Bt> */}
             </BtContainer>
           )}
         </TextContainer>
@@ -138,7 +139,6 @@ const PostExcerpt = ({ post, user, removingPost }) => {
 export const PostsList = ({ user }) => {
   const dispatch = useDispatch();
   const posts = useSelector(selectAllPosts);
-  const [addRequestStatus, setAddRequestStatus] = useState("idle");
 
   const postStatus = useSelector((state) => state.posts.status);
   const error = useSelector((state) => state.posts.error);
@@ -151,17 +151,6 @@ export const PostsList = ({ user }) => {
 
   let content;
 
-  async function removingPost(postId) {
-    try {
-      setAddRequestStatus("pending");
-      dispatch(removePost(postId));
-    } catch (err) {
-      console.log({ err });
-    } finally {
-      setAddRequestStatus("idle");
-    }
-  }
-
   if (postStatus === "loading") {
     content = <div className="loader">Loading...</div>;
   } else if (postStatus === "succeeded") {
@@ -171,12 +160,7 @@ export const PostsList = ({ user }) => {
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
     content = orderedPosts.map((post) => (
-      <PostExcerpt
-        key={post.id}
-        post={post}
-        user={user}
-        removingPost={removingPost}
-      />
+      <PostExcerpt key={post.id} post={post} user={user} />
     ));
   } else if (postStatus === "error") {
     content = <div>{error}</div>;
