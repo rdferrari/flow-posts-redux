@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { API, Storage } from "aws-amplify";
-import { v4 as uuid } from "uuid";
 import { listPosts } from "../../graphql/queries";
-import { createPost } from "../../graphql/mutations";
+import { createPost, updatePost } from "../../graphql/mutations";
 
 const initialState = {
   posts: [],
@@ -55,18 +54,42 @@ export const addNewPost = createAsyncThunk(
   }
 );
 
+export const editPost = createAsyncThunk(
+  "posts/postUpdated",
+  async (postData) => {
+    try {
+      const response = await API.graphql({
+        query: updatePost,
+        variables: { input: postData },
+        authMode: "AMAZON_COGNITO_USER_POOLS",
+      });
+
+      const updatedPostData = response.data.updatePost;
+
+      const mediaUrl = await Storage.get(updatedPostData.media);
+      updatedPostData.media = mediaUrl;
+
+      return updatedPostData;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    postUpdated(state, action) {
-      const { id, title, content } = action.payload;
-      const existingPost = state.posts.find((post) => post.id === id);
-      if (existingPost) {
-        existingPost.title = title;
-        existingPost.content = content;
-      }
-    },
+    // reducers
+    // postUpdated(state, action) {
+    //   const { id, title, text, media } = action.payload;
+    //   const existingPost = state.posts.find((post) => post.id === id);
+    //   if (existingPost) {
+    //     existingPost.title = title;
+    //     existingPost.text = text;
+    //     existingPost.media = media;
+    //   }
+    // },
   },
   extraReducers: {
     [fetchPosts.pending]: (state, action) => {
@@ -83,6 +106,16 @@ const postsSlice = createSlice({
     },
     [addNewPost.fulfilled]: (state, action) => {
       state.posts.push(action.payload);
+    },
+
+    [editPost.fulfilled]: (state, action) => {
+      const { id, title, text, media } = action.payload;
+      const existingPost = state.posts.find((post) => post.id === id);
+      if (existingPost) {
+        existingPost.title = title;
+        existingPost.text = text;
+        existingPost.media = media;
+      }
     },
   },
 });

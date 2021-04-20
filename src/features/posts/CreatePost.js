@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { v4 as uuid } from "uuid";
-import { Storage, API } from "aws-amplify";
+import { Storage } from "aws-amplify";
 // import { createPost } from "../graphql/mutations";
 import { useForm } from "react-hook-form";
 import { lightGrey, darkGrey, action } from "../../styles/colors";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 
 import { addNewPost } from "./postsSlice";
@@ -92,13 +91,7 @@ const Button = styled.p`
   }
 `;
 
-export default function CreatePost({
-  setPosts,
-  posts,
-  setShowCreatePost,
-  showCreatePost,
-}) {
-  /* 1. Create local state with useState hook */
+export default function CreatePost({ setShowCreatePost, showCreatePost }) {
   const {
     register,
     handleSubmit,
@@ -107,7 +100,6 @@ export default function CreatePost({
   } = useForm();
   const [mediaName, setMediaName] = useState("");
   const [mediaInfo, setMediaInfo] = useState("");
-  // const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState("");
   // const [prevImage, setPreviewImage] = useState("");
 

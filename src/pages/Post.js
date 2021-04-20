@@ -4,7 +4,8 @@ import styled from "styled-components";
 import { darkGrey } from "../styles/colors";
 
 import { UserStatusContext } from "../App";
-import EditPost from "../components/EditPost";
+// import EditPost from "../components/EditPost";
+import EditPost from "../features/posts/EditPost";
 
 const PostContainer = styled.div`
   background-color: ${darkGrey};
@@ -13,8 +14,7 @@ const PostContainer = styled.div`
   align-items: center;
 `;
 
-
-function Post({ posts, setPosts }) {
+function Post() {
   let { id } = useParams();
 
   return (
@@ -22,7 +22,8 @@ function Post({ posts, setPosts }) {
       {(user) => (
         <PostContainer>
           {user !== "no user authenticated" && (
-            <EditPost posts={posts} setPosts={setPosts} postId={id} />
+            // <EditPost posts={posts} setPosts={setPosts} postId={id} />
+            <EditPost postId={id} />
           )}
         </PostContainer>
       )}
