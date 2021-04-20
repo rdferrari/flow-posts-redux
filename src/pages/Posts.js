@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import List from "../components/List";
-// import CreatePost from "../components/CreatePost";
 import CreatePost from "../features/posts/CreatePost";
 import { darkGrey, action } from "../styles/colors";
 

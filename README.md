@@ -1,6 +1,6 @@
 # Flow posts
 
-AWS Amplify - Auth, API, Storage - React JS and TypeScript.
+AWS Amplify - Auth, API, Storage - React JS and TypeScript - Redux
 
 ## Clone the repo
 
